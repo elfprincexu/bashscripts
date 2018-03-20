@@ -125,37 +125,40 @@ echo "      $cmd"
 
 
 
-# try to extract this dump file. 
-notif="CD to the dest folder Now"
-echo "$notif"
+# try to extract this dump file.
+echo "  Now extracting the dump file and analysis it "
+
+notif="change path to the dest folder"
+echo "      $notif"
 
 cmd="cd $dest_dump_dir_path"
 echo "      $cmd"
 `echo "$cmd"`
 
-currentPath=`pwd`
-echo "currentLocation=$currentPath"
+scriptPath="$( cd "$(dirname "$0")" ; pwd -P )"
+echo "      scriptPath=$scriptPath"
+localDumpFolder=`pwd`
+echo "      currentLocation=$localDumpFolder"
 
 
-notif="Go to chroot, depends on version file context, go12sp1 or go12"
-echo "$notif"
+notif="chroot, it depends on version file context, go12sp1 or go12, then evilddump or kevildump to open the dump file"
+echo "      $notif"
 # chroot, go12sp1 or go12
 version="version"
 if [ -e $version ]; then
     if [ -n `grep -i "go12sp1" $version` ]; then
-        chroot="go12sp1"
-        echo "    $chroot"
+        chroot="go12sp1 -- $localDumpFolder --- $scriptPath/dumpOpen.sh $localDumpFolder"
+        echo "      $chroot"
         `echo "$chroot"`
 
     elif [ -n `grep -i "go12" $version` ]; then
-        chroot="go12"
-        echo "    $chroot"
+        chroot="go12 -- $localDumpFolder --- $scriptPath/dumpOpen.sh $localDumpFolder"
+        echo "      $chroot"
         `echo "$chroot"`
     
     else
         notif="version file exists and unknow chroot version found"
         echo "    $notif"
-    
     fi
 
 else
@@ -164,25 +167,6 @@ else
     cmd="go12sp1"
     echo "   $cmd"
     `echo "$cmd"`
-
 fi
 
-notif="Opening the dump file with evildump.pl or kevildump.pl depending on dump file category"
-echo "$notif"
-# evildump or kevildump
-if [[ -n $(find . -type f -iname "kdump_*.gz") ]];then
-    cmd="kevildump.pl -i -d ."
-    echo "    $cmd"
-    `echo "$cmd"`
-
-elif [[ -n $(find . -type f -iname "safe_dump_*.gz") ]]; then
-    cmd="evildump.pl -d ."
-    echo "    $cmd"
-    `echo "$cmd"`
-
-else
-    notif=" unknown process dump, need to manually open it"
-    echo "   $notif"
-
-fi
 

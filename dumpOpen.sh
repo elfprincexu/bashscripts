@@ -14,19 +14,17 @@ localDumpFolderPath="$1"
 echo "     localDumpFolderPath=$localDumpFolderPath"
 openDumpCommand=""
 # evildump or kevildump
-if [[ -n $(find $localDumpFolderPath  -type f -iname "kdump_*.gz") ]];then
-    openDumpCommand="kevildump.pl -i -d $localDumpFolderPath"
+if [[ -n $(find $localDumpFolderPath  -type f -iname "kdump_sp*") ]];then
+    openDumpCommand="kevildump -i -d $localDumpFolderPath"
     echo "    $openDumpCommand"
     `echo "$openDumpCommand"`
 
-elif [[ -n $(find $localDumpFolderPath -type f -iname "safe_dump_*.gz") ]]; then
+elif [[ -n $(find $localDumpFolderPath -type f -iname "safe_dump_sp*.gz") ]]; then
     openDumpCommand="evildump.pl -d $localDumpFolderPath"
     echo "    $openDumpCommand"
     `echo "$openDumpCommand"`
 
 else
-    openDumpCommand=""
     notif=" unknown process dump, need to manually open it"
     echo "   $notif"
 fi
-
