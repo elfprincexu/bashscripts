@@ -1,17 +1,11 @@
 #!/bin/sh 
-
-
 #
 #  copy dump necessary files to local, as original files locate remotely, if we 
 #  use evildump or kevildump, the process probably needs a lot of time, which is 
 #  not efficient, so, this script provides the functionality to copy necessary files 
 #  firstly, then, we can analyse the dump file locally
+#
 
-# safe dump necessary files : safe_binaries.tar.gz version safe_dump_?????.gz 
-#
-# ecom dump necessary files : TBD
-#
-# other dump: TBD 
 default_dest_dump_dir="/c4_working/triage"
 source_dump_dir=$1
 
@@ -29,8 +23,17 @@ else
     dest_dump_dir=$default_dest_dump_dir
 fi
 
-echo " source_dump_dir: $source_dump_dir "
-echo " dest_dump_dir: $dest_dump_dir"
+###########################Parse source_dump_dir############################################
+
+source_dump_dir=`cd $source_dump_dir; pwd`
+AR_Number=`echo "$source_dump_dir" | awk -F '/' '{print $6}'`
+dump_filename=`echo "$source_dump_dir" | awk -F '/' '{print $(NF)}'`
+dest_dump_dir_path="$dest_dump_dir/$AR_Number/$dump_filename"
+
+echo "  source_dump_dir: $source_dump_dir"
+echo "  AR Number: $AR_Number"
+echo "  dump_filename: $dump_filename"
+echo "  dest_dump_dir_path: $dest_dump_dir_path"
 
 
 # if source_dump_dir does not exist, we need to warn user 
@@ -41,8 +44,11 @@ fi
 
 # if dest_dump_dir does not exist, we need to mkdir it firslty 
 if [ ! -d "$dest_dump_dir" ]; then
-    echo "  mkdir: $dest_dump_dir"
-    `mkdir -p $dest_dump_dir`
+    notif=" dest_dump_dir: $dest_dump_dir is empty, need to mkdir it"
+    echo "    $notif"
+    cmd="mkdir -p $dest_dump_dir"
+    echo "    $cmd"
+    `echo "$cmd"`
     result=$?
     if [ $result -ne 0 ]; then
         echo "  dest_dump_dir: $dest_dump_dir NOT Created Successfully"
@@ -50,23 +56,24 @@ if [ ! -d "$dest_dump_dir" ]; then
     fi
 fi
 
-###########################Parse source_dump_dir############################################
-
-source_dump_dir=`cd $source_dump_dir; pwd`
-AR_Number=`echo "$source_dump_dir" | awk -F '/' '{print $6}'`
-
-dump_filename=`echo "$source_dump_dir" | awk -F '/' '{print $(NF)}'`
-
-dest_dump_dir_path="$dest_dump_dir/$AR_Number/$dump_filename"
-
-echo "  AR Number: $AR_Number"
-echo "  dump_filename: $dump_filename"
-echo "  dest_dump_dir_path: $dest_dump_dir_path"
-
+# if dest_dump_dir_path already exit, we need to clean it firstly before we start
+if [ -d "$dest_dump_dir_path" ]; then
+    echo "  dest_dump_dir_path: $dest_dump_dir_path already existed, need to remove it firstly "
+    cmd="rm -rf $dest_dump_dir_path"
+    echo "      $cmd"
+    `echo "$cmd"`
+    result=$?
+    if [ $result -ne 0 ]; then
+        echo "   dest_dump_dir_path: $dest_dump_dir_path Already Existed And Failed To Be Removed"
+        exit 0
+    fi
+fi
 
 if [ ! -d "$dest_dump_dir_path" ]; then
-    echo "  mkdir: $dest_dump_dir_path"
-    `mkdir -p $dest_dump_dir_path`
+    echo "  dest_dump_dir_path: $dest_dump_dir_path is empty, need to mkdir it now"
+    cmd="mkdir -p $dest_dump_dir_path"
+    echo "      $cmd"
+    `echo "$cmd"`
     ret=$?
     if [ $ret -ne 0 ]; then
         echo "Failed to make path : $dest_dump_dir_path"
@@ -74,14 +81,14 @@ if [ ! -d "$dest_dump_dir_path" ]; then
     fi
 fi 
 
-
 #########################CP FILES########################################
-
 #
-# 1. version 2. *binaries.tar.gz 3 *_dump_* 4 DC 
-# 5. arrary.out
+# 1. version (go12 ot go12sp1)
+# 2. *binaries.tar.gz (dependent binaries)
+# 3. *_dump_* (core file)
+# 4. DC file (colllected after this core dump)
+# 5. arrary.out (timeline events)
 
-# array.out in the parent dir 
 cmd="cp -p $source_dump_dir/../*.out $dest_dump_dir_path"
 echo "      $cmd"
 `echo "$cmd"`
@@ -124,10 +131,11 @@ echo "      $cmd"
 `echo "$cmd"`
 
 
-
+#
 # try to extract this dump file.
-echo "  Now extracting the dump file and analysis it "
+#
 
+echo "  Now extracting the dump file and analysis it "
 notif="change path to the dest folder"
 echo "      $notif"
 
@@ -140,10 +148,12 @@ echo "      scriptPath=$scriptPath"
 localDumpFolder=`pwd`
 echo "      currentLocation=$localDumpFolder"
 
-
 notif="chroot, it depends on version file context, go12sp1 or go12, then evilddump or kevildump to open the dump file"
 echo "      $notif"
+
+#
 # chroot, go12sp1 or go12
+#
 version="version"
 if [ -e $version ]; then
     if [ -n `grep -i "go12sp1" $version` ]; then
@@ -168,5 +178,3 @@ else
     echo "   $cmd"
     `echo "$cmd"`
 fi
-
-
