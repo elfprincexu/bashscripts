@@ -15,13 +15,23 @@ echo "     localDumpFolderPath=$localDumpFolderPath"
 openDumpCommand=""
 # evildump or kevildump
 if [[ -n $(find $localDumpFolderPath  -type f -iname "kdump_sp*") ]];then
+    notif="Kernel dump found "
+    echo "    $notif"
     openDumpCommand="kevildump -i -d $localDumpFolderPath"
     echo "    $openDumpCommand"
     `echo "$openDumpCommand"`
 
 elif [[ -n $(find $localDumpFolderPath -type f -iname "safe_dump_sp*.gz") ]]; then
+    notif="Safe dump found "
+    echo "     $notif"
     openDumpCommand="evildump.pl -d $localDumpFolderPath"
     echo "    $openDumpCommand"
+    `echo "$openDumpCommand"`
+
+elif [[ -n $(find $localDumpFolderPath -type f -iname "*dump_sp*ecom*") ]]; then
+    notif="ECOM dump found "
+    echo "     $notif"
+    openDumpCommand="evildump.pl -d $localDumpFolderPath"
     `echo "$openDumpCommand"`
 
 else
