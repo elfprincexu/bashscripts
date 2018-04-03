@@ -6,6 +6,6 @@ need to put scripts in the same folder.
 2. check the version file context to chroot, whether go12sp1 or go12 depends on the version content. 
 3. safe dump will trigger evildump.pl script to open it, kernel dump will trigger kevildump to open it
 4. support ECOM dump file analysis, trigger evildump.pl script to open it. 
-
+5. create a python versioned script
 
 Thanks
