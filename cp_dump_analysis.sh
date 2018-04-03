@@ -156,12 +156,12 @@ echo "      $notif"
 #
 version="version"
 if [ -e $version ]; then
-    if [ -n `grep -i "go12sp1" $version` ]; then
+    if [ -n `grep -i "sles12sp1" $version` ]; then
         chroot="go12sp1 -- $localDumpFolder --- $scriptPath/dumpOpen.sh $localDumpFolder"
         echo "      $chroot"
         `echo "$chroot"`
 
-    elif [ -n `grep -i "go12" $version` ]; then
+    elif [ -n `grep -i "slesgo12" $version` ]; then
         chroot="go12 -- $localDumpFolder --- $scriptPath/dumpOpen.sh $localDumpFolder"
         echo "      $chroot"
         `echo "$chroot"`
