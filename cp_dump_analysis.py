@@ -91,7 +91,7 @@ for file in glob.glob((str(source_dump_dir)+ str("/*_binaries.tar.gz"))):
     shutil.copy(file, dest_dump_dir_path)
 
 
-for file in glob.glob((str(source_dump_dir)+ str("../*_service_data_FNM*.tar"))):
+for file in glob.glob((str(source_dump_dir)+ str("/*_service_data_FNM*.tar"))):
     print " copying " , file
     shutil.copy(file, dest_dump_dir_path)
 
